@@ -19,7 +19,7 @@ export const validate = (validations: ValidationChain[]) => {
   };
 };
 
-const signupValidator = [
+export const signupValidator = [
   body("name").notEmpty().withMessage("Name is required"),
   body("email").trim().isEmail().withMessage("Email is required"),
   body("password")
