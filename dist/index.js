@@ -1,8 +1,13 @@
 import app from "./app.js";
-const PORT = 3000;
+import { connectToDatabase } from "./db/connection.js";
+const PORT = process.env.PORT || 3000;
 // GET
 // PUT
 // POST
 // DELETE
-app.listen(PORT, () => console.log(`listening on port ${PORT}`));
+connectToDatabase()
+    .then(() => {
+    app.listen(PORT, () => console.log(`Listening on port ${PORT} and connected to Database`));
+})
+    .catch((err) => console.log(err));
 //# sourceMappingURL=index.js.map
