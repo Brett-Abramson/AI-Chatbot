@@ -29,7 +29,7 @@ export const userSignup = async (
     const user = new User({ name, email, password: hashedPassword }); // encrypt the password before storing in the database
     await user.save();
 
-    return res.status(200).json({ message: "OK", id: user._id.toString() });
+    return res.status(200).json({ message: "USER CREATED", id: user._id.toString() });
   } catch (error) {
     console.log(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });
