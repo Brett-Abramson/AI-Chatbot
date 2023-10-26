@@ -37,7 +37,7 @@ export const userSignup = async (
       .status(201)
       .json({ message: "USER CREATED", id: user._id.toString() });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });
   }
 };
@@ -49,15 +49,28 @@ export const userLogin = async (
 ) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).send("Email and password are required.");
+    }
+
     const user = await User.findOne({ email });
-    if (!user) res.status(401).send("User not registered");
+    if (!user) {
+      return res.status(401).send("Invalid email or password.");
+    }
+
     const isPasswordCorrect = await compare(password, user.password);
-    if (!isPasswordCorrect) res.status(403).send("Incorrect Password");
+    if (!isPasswordCorrect) {
+      return res.status(403).send("Invalid email or password.");
+    }
+
     return res
       .status(200)
       .json({ message: "User Logged In", id: user._id.toString() });
   } catch (error) {
-    console.log(error);
-    return res.status(200).json({ message: "ERROR", cause: error.message });
+    console.error(error);
+    return res
+      .status(200)
+      .json({ message: "An error occurred.", cause: error.message });
   }
 };
