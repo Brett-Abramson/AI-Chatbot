@@ -1,14 +1,6 @@
-import  express from "express";
-import { config } from "dotenv";
+import app from "./app.js"
 
-config();
-const app = express();
-
-const PORT = 3000
-
-// MIDDLEWARE
-app.use(express.json());
-
+const PORT = 3000;
 
 // GET
 // PUT
