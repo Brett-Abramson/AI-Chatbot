@@ -117,11 +117,11 @@ export const userLogin = async (
 export const verifyUser = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // User token check
-    const user = await User.findById({ email: res.locals.jwtData.id });
+    const user = await User.findById( res.locals.jwtData.id );
     if (!user) {
       return res.status(401).send("User not registered OR Token malfuctioned");
     }
