@@ -2,6 +2,7 @@ import { NextFunction, Response } from "express";
 import { body, ValidationChain, validationResult } from "express-validator";
 import { Request } from "express-validator/src/base.js";
 
+// middleware function used to validate any route
 export const validate = (validations: ValidationChain[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     for (let validation of validations) {

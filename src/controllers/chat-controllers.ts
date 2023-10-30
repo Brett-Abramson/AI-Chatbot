@@ -9,13 +9,15 @@ export const generateChatCompletion = async (
   next: NextFunction
 ) => {
   try {
+    // expects an incoming "message" from the user
     const { message } = req.body;
+    // find user in DB based on id from JWT
     const user = await User.findById(res.locals.jwtData.id);
     if (!user)
       return res
         .status(401)
         .json({ message: "User not registered OR Token malfunctioned" });
-    // grab chats of user
+    // retrieves the user's chat history and transforms into a format the OpenAI API expects
     const chats = user.chats.map(({ role, content }) => ({
       role,
       content,

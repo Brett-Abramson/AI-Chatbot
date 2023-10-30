@@ -16,10 +16,11 @@ export const getAllUsers = async (
     return res.status(200).json({ message: "OK", users });
   } catch (error) {
     console.log(error);
-    return res.status(200).json({ message: "ERROR", cause: error.message });
+    return res.status(500).json({ message: "ERROR", cause: error.message });
   }
 };
 
+// handles user registration
 export const userSignup = async (
   req: Request,
   res: Response,
@@ -27,10 +28,11 @@ export const userSignup = async (
 ) => {
   try {
     const { name, email, password } = req.body;
-
+    // checks if a user with provided email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(401).send("User Already Registered");
 
+    // encrypts password before saving it to database
     const hashedPassword = await hash(password, 10);
     const user = new User({ name, email, password: hashedPassword }); // encrypt the password before storing in the database
     await user.save();
@@ -43,6 +45,7 @@ export const userSignup = async (
       path: "/",
     });
 
+    // generates a JWT for the newly registered user, then sets in an HTTP cookie
     const token = createToken(user._id.toString(), user.email, "7d");
     const expires = new Date();
     expires.setDate(expires.getDate() + 7);
@@ -59,10 +62,11 @@ export const userSignup = async (
       .json({ message: "USER CREATED", name: user.name, email: user.email });
   } catch (error) {
     console.error(error);
-    return res.status(200).json({ message: "ERROR", cause: error.message });
+    return res.status(500).json({ message: "ERROR", cause: error.message });
   }
 };
 
+// handles user login
 export const userLogin = async (
   req: Request,
   res: Response,
@@ -70,21 +74,22 @@ export const userLogin = async (
 ) => {
   try {
     const { email, password } = req.body;
-
+    // validates provided email and password
     if (!email || !password) {
       return res.status(400).send("Email and password are required.");
     }
-
+    // fetches user entry from DB using provided email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).send("Invalid email or password.");
     }
-
+    // checks if provided password matches password from DB
     const isPasswordCorrect = await compare(password, user.password);
     if (!isPasswordCorrect) {
       return res.status(403).send("Invalid email or password.");
     }
 
+    // if auth successful, generates a JWT for user and sets it in a HTTP cookie
     res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
       domain: "localhost",
@@ -109,18 +114,19 @@ export const userLogin = async (
   } catch (error) {
     console.error(error);
     return res
-      .status(200)
+      .status(500)
       .json({ message: "An error occurred.", cause: error.message });
   }
 };
 
+// verifies if the user associated with the JWT is valid
 export const verifyUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    // User token check
+    // retrieves the user from the DB based on userID stored in JWT
     const user = await User.findById( res.locals.jwtData.id );
     if (!user) {
       return res.status(401).send("User not registered OR Token malfuctioned");
@@ -136,7 +142,7 @@ export const verifyUser = async (
   } catch (error) {
     console.error(error);
     return res
-      .status(200)
+      .status(500)
       .json({ message: "An error occurred.", cause: error.message });
   }
 };
