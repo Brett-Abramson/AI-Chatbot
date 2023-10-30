@@ -42,3 +42,29 @@ export const generateChatCompletion = async (
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
+
+export const sendChatsToUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // retrieves the user from the DB based on userID stored in JWT
+    const user = await User.findById(res.locals.jwtData.id);
+    if (!user) {
+      return res.status(401).send("User not registered OR Token malfuctioned");
+    }
+    // console.log(user._id.toString(), res.locals.jwtData.id())
+    if (user._id.toString() !== res.locals.jwtData.id) {
+      return res.status(401).send("Permissions didn't match");
+    }
+    
+    // sends all of the chats to frontend 
+    return res.status(200).json({ message: "OK", chats: user.chats });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "An error occurred.", cause: error.message });
+  }
+};

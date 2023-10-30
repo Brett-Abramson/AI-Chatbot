@@ -5,6 +5,12 @@ import { generateChatCompletion } from "../controllers/chat-controllers.js";
 
 // Protected API (only authenticated and authorize dusers can access)
 const chatRoutes = Router();
-chatRoutes.post("/new", validate(chatCompletionValidator),verifyToken, generateChatCompletion )
+chatRoutes.post(
+  "/new",
+  validate(chatCompletionValidator),
+  verifyToken,
+  generateChatCompletion
+);
+chatRoutes.get("/all-chats", verifyToken, generateChatCompletion);
 
 export default chatRoutes;
