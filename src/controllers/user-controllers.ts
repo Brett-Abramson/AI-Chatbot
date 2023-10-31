@@ -146,3 +146,37 @@ export const verifyUser = async (
       .json({ message: "An error occurred.", cause: error.message });
   }
 };
+
+export const userLogout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    // retrieves the user from the DB based on userID stored in JWT
+    const user = await User.findById( res.locals.jwtData.id );
+    if (!user) {
+      return res.status(401).send("User not registered OR Token malfuctioned");
+    }
+    // console.log(user._id.toString(), res.locals.jwtData.id())
+    if (user._id.toString() !== res.locals.jwtData.id) {
+      return res.status(401).send("Permissions didn't match")
+    }
+
+    res.clearCookie(COOKIE_NAME, {
+      httpOnly: true,
+      domain: "localhost",
+      signed: true,
+      path: "/",
+    });
+
+    return res
+      .status(200)
+      .json({ message: "User Verified", name: user.name, email: user.email });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "An error occurred.", cause: error.message });
+  }
+};
